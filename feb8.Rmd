@@ -11,13 +11,16 @@ data <- Fatalities
 data <- na.omit(data)
 head(data)
 ```
-#anova model
+# transformation 
 ```{r}
-data_ca <- 
+data_percent <- data %>% mutate(fatal_percent=fatal/pop*100)
+data_transfored <- data_percent %>% mutate(transed_fatal=log(1/(fatal_percent*(1-fatal_percent))))
 ```
 
 ```{r}
-fit1<-aov(fatal~.,data=data)
+fit1<-aov(log(fatal)~.,data=data)
+plot(fit1,which=1)
+plot(fit1,which=2)
 fit2<-aov(fatal~state+beertax+drinkage+jail+miles+income+unemp,data=data)
 summary(fit1)
 summary(fit2)
