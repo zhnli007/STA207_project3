@@ -1,0 +1,29 @@
+# Library
+```{r, include=F}
+library(AER)
+library(tidyverse)
+library(plotly)
+```
+# Obtain data
+```{r, include=F}
+data("Fatalities")
+data <- Fatalities 
+data <- na.omit(data)
+head(data)
+```
+#anova model
+```{r}
+data_ca <- 
+```
+
+```{r}
+fit1<-aov(fatal~.,data=data)
+fit2<-aov(fatal~state+beertax+drinkage+jail+miles+income+unemp,data=data)
+summary(fit1)
+summary(fit2)
+```
+
+```{r}
+data %>% plot_ly(x=~state, y=~year, z=~fatal) %>% add_markers(color=~state)
+```
+
