@@ -1,0 +1,181 @@
+---
+title: "........"
+output:
+  pdf_document: default
+  fontsize: 8pt
+  html_document:
+    df_print: paged
+    fig_caption: yes
+    number_sections: yes
+---
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 18px;
+  }
+
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE,message=FALSE,warning=FALSE)
+```
+
+
+Team ID: 3
+
+Name (writing): Kieran Zhou
+
+Name (writing): Liela Meng
+
+Name (coding): Yunan Hou
+
+Name (coding): Zhen Li
+
+Github repo link:https://github.com/maoqunqun/STA207_project3.git
+
+#  1.Introduction
+
+In 2018, there were 36,560 people killed in traffic crashes in the United States (NHTSA, 2019). To reduce the traffic fatalities, many studies have made suggestions on alcohol-control policies to federal and state governments. Though alcohol involvement is the most concerned factor, other potential factors may impact the fatality rate in the United States. 
+
+   This study investigates the impact of both alcohols involved factors and non-alcohol involved factors on traffic fatality rate based on the traffic fatalities panel data for 48 states from 1982 to 1988. In this paper, the specific causes and the age of death under vehicle fatalities are not concerned. This paper focuses on the rate of vehicle fatalities and aims to find the factors which cause the reduction or increase of the vehicle fatalities rate. In particular, whether punishment (mandatory jail sentence or community service) is useful is also concerned in this paper.
+   
+   This study provides evidence that higher spirits consumption is associated with increases in vehicle fatalities rate, and higher beer taxes are associated with reductions in vehicle fatalities rate. Interestingly, per capita, personal income, and employment rate are positively associated with vehicle fatalities rate. This indicates that higher personal income and employment rates may also be associated with increases in alcohol consumption.
+
+# 2.Data analysis
+## Analysis plan
+
+### Exploratory data analysis  
+   
+The data this paper uses contains 16 distinct variables that may affect the vehicle fatalities rate. In this data, whether there was mandatory community service in California in 1988 is unclear. After an investigation, the answer “no” is filled in, and hence the omitted value bias is avoided. 
+
+```{r echo=F,message=FALSE}
+#install.packages("gplots")
+library(AER)
+library(car)
+library(gplots)
+library(plm)
+library(tidyverse)
+library(plotly)
+library(car)
+library(ggplot2)
+
+
+data("Fatalities")
+Fatalities[Fatalities$state=="ca",]$jail[7]<-"no"               # missing value补充为no
+Fatalities[Fatalities$state=="ca",]$service[7]<-"no" 
+data<-Fatalities
+data<- pdata.frame(data,index = c("state","year"))
+data$fatal_rate <- Fatalities$fatal / Fatalities$pop * 10000    #according to reference
+
+```
+   According to the interest of this paper, percent of southern baptists, percent of Mormon, miles, and GSP rate of change are not included in the analysis as they can not be controlled by policies. For the rest of the variables, previous research has shown the significant influence of… 
+   
+   Though the governments made efforts setting several policies to reduce alcohol-involved driving (Ruhm, 1996), there is no pattern on the changes of total vehicle fatalities rate. Based on this situation, an investigation on alcohol-involved vehicle fatalities rate is also made in this paper, in order to analyze whether the punishment (mandatory jail sentence or community service) and other related policies are effective.
+
+   Figure 1 and figure 2 shows confidence intervals of estimated means grouped by state and year, respectively. Those figures indicates that the vehicle fatalities rates vary a lot in different states, and vehicle fatalities rates show differences among distinct years as well. Thus, the state and year fixed effects terms are considered in the model.    
+   
+```{r, warning=F,,fig.height=5 , fig.width=10}
+par(mfrow=c(1,2))
+plotmeans(fatal_rate~state, data=data, main="Figure1 Heterogeniety across state")                     
+plotmeans(fatal_rate~year, data=data, main= "Figure2 Heterogeniety across year")                     
+```
+   
+### Model
+
+To analyze these fatalities panel data, both random and fixed effects models are required to check. Ruhm (1996) suggests using the fixed-effects model to analyze this data. Besides, by running the Hausman Test, the result suggests fixed-effects model is more suitable for given dataset.
+
+$Y_{i,t}=\mu_0+\alpha_i+\beta_t+X_{i,t}+\varepsilon_{i,t}$ where 
+
+```{r, echo=FALSE}
+#test random&fixed
+random <-plm(fatal_rate ~ unemp+income+spirits+beertax,data=data,model="random",effect="twoways")
+fixed <-plm(fatal_rate ~ unemp+income+spirits+beertax,data=data,model="within",effect = 'twoways')
+
+pooling <-plm(fatal_rate ~ unemp+income+spirits+beertax,data=data,model="pooling",effect = 'twoways')
+phtest(fixed, random)#table1
+vif(pooling)
+```
+First assumption is justified as… , thouse 48 entities are independent when taking variables in the model into considerat. the second assumption is justified as well. Third& fourth… In addition, F test requires additional assumption normality of error term. 
+
+
+###  Hypothesis
+
+* Hypothesis 1: $$
+
+检测是否需要time-fixed effects term
+
+Ho：time-fixed effects term = 0
+
+table 2：Lagrange Multiplier Test
+
+结论：reject Ho，也就是time-fixed effects term不为0
+
+```{r, echo=FALSE}
+#test time-fixed effects
+
+plmtest(fixed, c("time"), type=("bp"))     #keep the time-fixed effects term
+```
+检测是否需要state-fixed effects term
+
+Ho：state-fixed effects term = 0
+
+table 3：Lagrange Multiplier Test
+
+结论：reject Ho，也就是state-fixed effects term不为0
+
+*展示了48个state-fixed effects term
+
+```{r, echo=FALSE}
+#test state-fixed effects
+
+plmtest(fixed, c("individual"), type=("bp"))#keep the state-fixed effects term
+
+fixef(fixed)#show state-fixed effects term
+```
+
+## Analysis result
+
+### Model fitting result 
+
+### Assumption satisfaction
+
+检测是否constant varience
+
+Ho：constant varience
+
+```{r, echo=FALSE}
+#constant varience
+bptest(fixed)
+#in this section, residuals plot could also be added for better proving the constancy
+```
+
+检测是否normal
+
+结果确实基本是normality
+
+```{r, echo=FALSE}
+#test normal
+res<-scale(residuals(fixed))
+qqnorm(res, ylab = 'Residuals')
+qqline(res)
+```
+### Confidence level
+
+# 3.Discussion
+
+* Conclusions and problems for further investigation
+
+This study shows more evidence that alcohol-involved driving is possibly one of the most severe causes of vehicle fatalities. The higher spirits consumption is positively associated with total vehicle fatalities. Actually(Particular), we also discovered spirits consumption is associated with alcohol-involved fatalities. In order to reduce traffic fatalities, this study suggests higher beer taxes. In addition, the mandatory jail sentence and mandatory community service are also suggested to reduce the alcohol-involved traffic fatalities as there is evidence shown that (if either panel policies exist), the alcohol involved vehicle fatalities rate can be reduced Jail not significant in this dataset, perhaps 123 , requires further investigation. 
+
+New evidence on non-alcohol involved effects is also provided. Though the result indicates higher personal income and a higher employment rate are associated with higher vehicle fatalities rate, it does not mean that governments should consider to lower citizens’ personal income. There may be some confounders that confuse the association between income and vehicle fatalities rate. For example, higher personal income and employment rates may also be related to the increasing number of vehicles. This investigation only shows evidence that these non-alcohol involved factors are associated with vehicle fatalities rate as well, however, for further causal inference on these non-alcohol involved factors, more data and investigations are required to improve the related policies.
+
+* Causal inference
+
+
+# 4.Reference
+National Center for Statistics and Analysis. (2019). 2018 fatal motor vehicle crashes: Overview, (Traffic Safety Facts Research Note. Report No. DOT HS 812 826).
+C. J., Ruhm. (1996), Alcohol policies and highway vehicle fatalities, Journal of Health Economics 15, 435-454.
+C., Hanck et al. (2019), The fixed effects regression assumptions and standard errors for fixed effects regression, Introduction to econometrics with R, 227-228.
+https://journals.sagepub.com/doi/pdf/10.1177/1536867X0800700403
+http://ftp.nhtsa.dot.gov/ImpairedDriving/
+   
