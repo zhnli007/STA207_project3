@@ -98,9 +98,36 @@ vif(pooling)
 First assumption is justified as… , thouse 48 entities are independent when taking variables in the model into considerat. the second assumption is justified as well. Third& fourth… In addition, F test requires additional assumption normality of error term. 
 
 
-###  Hypothesis
+###  Hypothesis and hypothesis Testing
+To determine whether mendatory jail sentence associates with traffic fatalities rate, we propose one hypothesis.
 
-* Hypothesis 1: $$
+$H0:$ $\mu_{jail}=0$ 
+
+$\mu_{jail}$<-感觉得改成前后一致，第一次提出模型的时候专门给jail一个特别系数吧？/或者当成One way ANOVA另一种形式，此处为$\mu_{jail_{yes}}$=$\mu_{jail_{no}}$
+
+$Ha:$ $\mu_{jail}\neq0$ / $\mu_{jail_{yes}}\neq\mu_{jail_{no}}$
+
+We use F-statistic to test this hypothesis with significance level $\alpha$ at 0.05. F-statistic from our result is 0.6054186, p-value is 0.4371821 (larger than 0.05). Thus, we can't reject the null hypothesis, which means mendatory jail sentence doesn't associate with total traffic fatalities rate.
+
+```{r include=F}
+full=plm(fatal_rate ~
+income+unemp+spirits+beertax+jail,index=c("state","year"),data=data,model="within",effect = 'twoways');
+reduced=plm(fatal_rate ~
+income+unemp+spirits+beertax,index=c("state","year"),data=data,model="within",effect = 'twoways')
+rvsf=function(reduced,full) {
+  sser=deviance(reduced) 
+  ssef=deviance(full) 
+  dfer=reduced$df  
+  dfef=full$df 
+  dfn=dfer-dfef 
+  Fstat=(sser-ssef)/dfn/   
+  (ssef/dfef) 
+  pvalue=1-pf(Fstat,dfn,dfef) 
+  list(Fstat=Fstat,dfn=dfn,dfd=dfef,pvalue=pvalue) }
+
+rvsf(reduced,full) 
+
+```
 
 检测是否需要time-fixed effects term
 
@@ -171,20 +198,6 @@ New evidence on non-alcohol involved effects is also provided. Though the result
 
 * Causal inference
 
-1. Ignorability assumption is violated
-
-For observational research, overt bias could occur since we did not fully control for these variables. Besides, according to reference, if unobserved variables are confounders, then we have hidden bias, ignorability assumption violated.
-
-In this report, since the adjusted r square of the final fixed-effect model in this report is 0.3, which reflects the explanatory power of a given regression model is relatively weak. Therefore, it is reasonable to conclude that there exist other variables, which are confounders that affect the traffic fatalities rate, are not included in the model as explanatory variables. Thus, the ignorability of treatment assignment assumption is violated.
-
-2. SUTVA assumption holds
-
-In all the models discussed in this paper, we assume that the effect of treatment is on individual observations and does not spill over onto other units. This may be only approximately true for this dataset, which implies the effect of income, spirits consumption, beer tax, and unemployment rate on each state does not influence any other states. Therefore, the stable unit treatment value assumption holds.
-
-
-3.Multicollinearity 
-
-The presence of perfect multicollinearity makes it impossible to draw causal inference between any variable and the observable variable. For this dataset, the correlation between income and unemployment rate is 0.55, which is relatively high. Hence, though income is the most significant variable in the model, it is still not safe to say high-income cause high traffic fatalities rate because other variables might exist, which influences both income and traffic fatalities. For example, rich people without higher education background might tend to spend their money on alcohol and fail to pay attention to the dangers of driving under the influence.
 
 # 4.Reference
 National Center for Statistics and Analysis. (2019). 2018 fatal motor vehicle crashes: Overview, (Traffic Safety Facts Research Note. Report No. DOT HS 812 826).
