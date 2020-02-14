@@ -171,6 +171,20 @@ New evidence on non-alcohol involved effects is also provided. Though the result
 
 * Causal inference
 
+1. Ignorability assumption is violated
+
+For observational research, overt bias could occur since we did not fully control for these variables. Besides, according to reference, if unobserved variables are confounders, then we have hidden bias, ignorability assumption violated.
+
+In this report, since the adjusted r square of the final fixed-effect model in this report is 0.3, which reflects the explanatory power of a given regression model is relatively weak. Therefore, it is reasonable to conclude that there exist other variables, which are confounders that affect the traffic fatalities rate, are not included in the model as explanatory variables. Thus, the ignorability of treatment assignment assumption is violated.
+
+2. SUTVA assumption holds
+
+In all the models discussed in this paper, we assume that the effect of treatment is on individual observations and does not spill over onto other units. This may be only approximately true for this dataset, which implies the effect of income, spirits consumption, beer tax, and unemployment rate on each state does not influence any other states. Therefore, the stable unit treatment value assumption holds.
+
+
+3.Multicollinearity 
+
+The presence of perfect multicollinearity makes it impossible to draw causal inference between any variable and the observable variable. For this dataset, the correlation between income and unemployment rate is 0.55, which is relatively high. Hence, though income is the most significant variable in the model, it is still not safe to say high-income cause high traffic fatalities rate because other variables might exist, which influences both income and traffic fatalities. For example, rich people without higher education background might tend to spend their money on alcohol and fail to pay attention to the dangers of driving under the influence.
 
 # 4.Reference
 National Center for Statistics and Analysis. (2019). 2018 fatal motor vehicle crashes: Overview, (Traffic Safety Facts Research Note. Report No. DOT HS 812 826).
